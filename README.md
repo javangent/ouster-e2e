@@ -4,6 +4,7 @@ This readme acts as a guide to running the scripts to train and evaluate network
 The thesis itself can be found [here](https://comserv.cs.ut.ee/ati_thesis/datasheet.php?id=72431&year=2021).
 
 ## Dataset extraction
+![extracted dataset](https://github.com/javangent/ouster-e2e/blob/master/imgs/onpolicy.gif "Extracted Dataset")
 To extract the dataset from a recorded ROSBAG, run the following command
 ```
 python extract_ouster_images.py path/to/rosbags/*.bag
@@ -14,8 +15,11 @@ To visually validade the dataset, run the following command
 ```
 python vis.py path/to/dataset
 ```
-This will cfeate an OpenCV image viewer where you can view the next and previous image with the 'k' and 'j' keys respectively.
+This will create an OpenCV image viewer where you can view the next and previous image with the 'k' and 'j' keys respectively.
 A vertical line overlayed on the image will show the ground truth steering output.
+
+
+![vis](https://github.com/javangent/ouster-e2e/blob/master/imgs/DatasetViewer.png "Visualiztion")
 ## Training the network
 To train the network, run the following script
 ```
@@ -47,10 +51,12 @@ the `--fr_thesh` controls the theshold (in meters) of the failure rate metric.
 The metric calculates the percentage of time the model spent driving too far away from the expert trajectory. The output is code for a Latex table showing the 
 results of each model.
 ## Visualizing the CNN
-Visualization of the trained CNN uses the VisualBackProp method created by Nvidia. The reference implementation used can be found [here]. 
+Visualization of the trained CNN uses the VisualBackProp method created by Nvidia. The reference implementation used can be found [here](https://github.com/mbojarski/VisualBackProp/blob/master/vis.lua). 
 To see the results of VisualBackProp for the trained model run the following command
 ```
 python visual_backprop.py path/to/model.pt path/to/dataset
 ```
 This will launch an OpenCV image viewer window. You can move forwards and backward through the dataset images by pressing 'k' and 'j' respectively.
-[image]
+
+
+![VBP](https://github.com/javangent/ouster-e2e/blob/master/imgs/curve.png "VBP")
