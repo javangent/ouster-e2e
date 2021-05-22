@@ -1,0 +1,19 @@
+<launch>
+<param name="use_sim_time" value="true" />
+<arg name="bagname" default="" />
+<arg name="range_img_max" default="50.0" />
+<group ns="lidar_center">
+  <include file="$(find vehicle_platform)/launch/ouster_lidar_driver.launch">
+    <arg name="replay" value="true" />
+    <arg name="image" value="true" />
+    <arg name="tf_prefix" value="lidar_center" />
+    <arg name="use_ros_time" value="true" />
+    <arg name="use_diagnostics" value="false" />
+    <arg name="metadata" value="/home/jan/ouster-e2e/192.168.3.200.json" />
+    <arg name="range_img_max" value="$(arg range_img_max)" />
+  </include>
+</group>
+<node pkg="rosbag" type="play" name="rosbag_play_ouster" args="$(arg bagname).bag --clock  -r 0.1 /lidar_center/ambient_image:=/ /lidar_center/intensity_image:=/ /lidar_center/imu:=/ /lidar_center/points_raw:=/ /lidar_center/range_image:=/" required="true" />
+
+<node pkg="rosbag" type="record" name="rosbag_record_ouster" args="-O $(arg bagname)_2.bag -a" />
+</launch>

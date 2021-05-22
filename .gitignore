@@ -1,0 +1,12 @@
+__pycache__/
+runs/
+OusterNet_Apr10_18-17-51.pt
+curve.png
+eval_cl.pyc
+final_models/environment.yml
+fix_ouster_images.py
+lol_script.pt
+lol_trace.pt
+right_lane.png
+right_turn.png
+transform.py
