@@ -2,10 +2,10 @@
 
 import rosbag
 import os
-import sys
 import numpy as np
 import cv2
 from cv_bridge import CvBridge
+import argparse
 
 bridge = CvBridge()
 amb_c = '/lidar_center/ambient_image'
@@ -15,12 +15,7 @@ steer_topic = '/pacmod/parsed_tx/steer_rpt'
 autonomy_topic = '/pacmod/as_tx/enabled'
 
 steer_ratio = 14.7
-channels = [amb_c, int_c, rng_c]
-top = 50
-left = 0 #+ 256
-right = 1024 #- 256
-bottom = 128 - 5
-bag_files = sys.argv[1:]
+channels = [amb_c, int_c, rng_c] 
 
 
 class OusterImage(object):
@@ -51,8 +46,12 @@ class OusterImage(object):
             print("failed")
             return None, None
 
-
-for bag_file in bag_files:
+img_extension = '.png'
+parser = argparse.ArgumentParser(description='Extract Ouster Dataset from ROSBAGs')
+parser.add_argument('bag_files', type=str, nargs='+', help='list of rosbags to process')
+parser.add_argument('--output_dir', type=str, help='output directory containing the extracted data (default path/to/rosbag/)', default=None)
+args = parser.parse_args()
+for bag_file in args.bag_files:
     imgs = []
     steers = []
     bag = rosbag.Bag(bag_file)
@@ -61,7 +60,11 @@ for bag_file in bag_files:
     wheel = 0.0
     autonomous = True
     autonomy_changed = False
+    i = 0
 
+    base_dir = args.output_dir if args.output_dir is not None else os.path.dirname(bag_file)
+    output_dir = os.path.join(base_dir, os.path.splitext(os.path.basename(bag_file))[0])
+    os.mkdir(output_dir)
     for topic, msg, ts in bag.read_messages():
         if topic == autonomy_topic:
             autonomy_changes = autonomous != msg.data
@@ -77,7 +80,9 @@ for bag_file in bag_files:
                     if not first: 
                         img, steer = oi.image()
                         if type(img) != type(None):
-                            imgs.append(img)
+                            #imgs.append(img)
+                            cv2.imwrite(os.path.join(output_dir, str(i)+img_extension), img)
+                            i += 1
                             steers.append(steer)
                     oi = OusterImage(msg.header.stamp.to_nsec())
                     first = False
@@ -88,13 +93,10 @@ for bag_file in bag_files:
             elif topic == rng_c:
                 oi.set_rng(cv_img)
 
-    os.mkdir(bag_file[:-4])
-    steers_file = os.path.join(bag_file[:-4], 'steers.csv')
-    img_extension = '.png'
+    steers_file = os.path.join(output_dir, 'steers.csv')
     with open(steers_file, 'w') as f:
         f.write('file_name,steer_angle\n')
-        for i, img in enumerate(imgs):
+        for i, steer in enumerate(steers):
             # Store in Range, Intensity, Ambience order
-            cv2.imwrite(os.path.join(bag_file[:-4], str(i)+img_extension), img)
-            f.write(str(i)+img_extension + ',' + str(steers[i]) + '\n')
-    print("Saved new folder: " + bag_file[:-4])
+            f.write(str(i)+img_extension + ',' + str(steer) + '\n')
+    print("Saved new folder: " + output_dir)

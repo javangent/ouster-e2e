@@ -153,9 +153,10 @@ if __name__ == "__main__":
     model = OusterNet()
     model.load_state_dict(torch.load(sys.argv[1]))
     model.eval()
-    ds = OusterConcatDataset(sys.argv[2])
+    ds = OusterConcatDataset('../ouster_data/test_final')
     deq = deque(range(0, len(ds)))
     example = ds[deq[0]]["image"]
+    #model = torch.jit.trace(model, example)
     vis = getImagesFull(model, example)[0]
     cv2.imshow('vis', vis)
     while cv2.getWindowProperty('vis', cv2.WND_PROP_VISIBLE) >= 1:

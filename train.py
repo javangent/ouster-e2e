@@ -163,7 +163,7 @@ def train(rank, args):
     best = {
             'model': 'default',
             'train_loss': 'default',
-            'maxoffset': 30,
+            'maxoffset': 100,
             'epoch': 0,
             'MAE': 0}
 
